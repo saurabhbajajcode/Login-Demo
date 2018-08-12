@@ -10,6 +10,20 @@ import UIKit
 
 class AppManager: NSObject {
 
+    static var collection: [String: Any] = {
+        if let path = Bundle.main.path(forResource: "collection", ofType: "json") {
+            do {
+                let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                let jsonResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
+                if let jsonResult = jsonResult as? [String: Any] {
+                    return jsonResult
+                }
+            } catch {
+
+            }
+        }
+        return [:]
+    }()
 }
 
 extension UIView {

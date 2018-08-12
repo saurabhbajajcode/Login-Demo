@@ -20,21 +20,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
 
     @IBOutlet weak var msnTextField: UITextField!
 
-    var collection: [String: Any] = {
-        if let path = Bundle.main.path(forResource: "collection", ofType: "json") {
-            do {
-                let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-                let jsonResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments)
-                if let jsonResult = jsonResult as? [String: Any] {
-                    return jsonResult
-                }
-            } catch {
-
-            }
-        }
-        return [:]
-    }()
-
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -61,35 +46,19 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         }
 
         // extract msn values from collection object
-        let included = collection["included"] as! [[String: Any]]
+        let included = AppManager.collection["included"] as! [[String: Any]]
         let flatIncluded = included.compactMap( { $0["attributes"] } )  as? [[String: Any]]
         let msnArray = flatIncluded?.compactMap ({ $0["msn"] }) as? [String]
         if msnArray?.contains(msnText) == true {
             (UIApplication.shared.delegate as? AppDelegate)?.window?.rootViewController?.view.showToast(message: "Login successfull")
+            showHomeScene()
         }
     }
- 
-    // MARK: UITextFieldDelegate methods
-    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-//        switch textField {
-//        case (loginView?.emailTextField)!, (loginView?.passwordTextField)! :
-//            textField.layer.borderWidth = 2
-//
-//        default: return true
-//        }
-        return true
-    }
-
-
 
     // MARK: helpers
-    private func saveLoginResponse() {
-        // show home screen i.e. scanner screen from Main storyboard
+    private func showHomeScene() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let homeNavigationController = storyboard.instantiateViewController(withIdentifier: "homeNavigationScene")
-//        AppManager.hideLoading()
-        DispatchQueue.main.async {
-            self.present(homeNavigationController, animated: true, completion: nil)
-        }
+        let homeNavController = storyboard.instantiateViewController(withIdentifier: "homeScene")
+        self.show(homeNavController, sender: self)
     }
 }
